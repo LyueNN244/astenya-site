@@ -24,11 +24,21 @@ async function checkLogin() {
     const loginGate = document.getElementById('login-gate');
 
     if (data.session) {
-
         const discordUser = data.session.user;
+
+        const { data: profile, error: profileError } = await client
+            .from('profiles')
+            .select('username, role')
+            .eq('id', discordUser.id)
+            .single();
+
+        if (profileError) {
+            console.warn('Profil okunamadı:', profileError.message);
+        }
 
         localStorage.setItem('asthenya_session', JSON.stringify({
             username:
+                profile?.username ||
                 discordUser.user_metadata.full_name ||
                 discordUser.user_metadata.name ||
                 discordUser.email ||
@@ -49,12 +59,11 @@ async function checkLogin() {
 
         document.body.style.overflow = 'auto';
 
-        console.log('Discord login başarılı');
+        console.log('Discord login başarılı:', profile?.role || 'user');
 
         return true;
 
     } else {
-
         if (loginGate) {
             loginGate.style.display = 'flex';
         }
@@ -76,11 +85,9 @@ async function logout() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-
     await checkLogin();
 
     client.auth.onAuthStateChange(async () => {
         await checkLogin();
     });
-
 });
