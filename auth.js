@@ -34,7 +34,7 @@ async function checkLogin() {
                 discordUser.email ||
                 'Discord Kullanıcısı',
 
-            role: 'USER',
+            role: profile?.role || 'user',
 
             loginTime: new Date().getTime(),
 
